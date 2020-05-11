@@ -60,7 +60,7 @@ seriesRouter.put('/:seriesId', (req, res, next) => {
   if (!name || !description) {
     return res.status(400).send();
   }
-  db.run('UPDATE Series SET name = $name, description = $description', {$name: name, $description: description}, function(err) {
+  db.run('UPDATE Series SET name = $name, description = $description WHERE id = $seriesId', {$name: name, $description: description, $seriesId: req.series.id}, function(err) {
     if (err) {
       return next(err);
     }
