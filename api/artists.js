@@ -8,7 +8,7 @@ const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite'
 artistsRouter.param('artistId', (req, res, next, artistId) => { 
   db.get('SELECT * FROM Artist WHERE id = $artistId', {$artistId: artistId}, (err, row) => {    
     if (err) {
-      next(err);
+      return next(err);
     }
     if (!row) {
       return res.status(404).send();
@@ -36,29 +36,56 @@ artistsRouter.get('/:artistId', (req, res) => {
 // POST /api/artists
 artistsRouter.post('/', (req, res) => {
   const {name, dateOfBirth, biography} = req.body.artist;
-  let {is_currently_employed} = req.body.artist;
+  let {isCurrentlyEmployed} = req.body.artist;
   if (!name || !dateOfBirth || !biography) {
     return res.status(400).send();
   }
-  is_currently_employed = is_currently_employed ? is_currently_employed : 1;  
+  isCurrentlyEmployed = isCurrentlyEmployed ? isCurrentlyEmployed : 1;  
 
-  db.run('INSERT INTO Artist (name, date_of_birth, biography, is_currently_employed) VALUES ($name, $date_of_birth, $biography, $is_currently_employed)', 
+  db.run('INSERT INTO Artist (name, date_of_birth, biography, is_currently_employed) VALUES ($name, $dateOfBirth, $biography, $isCurrentlyEmployed)', 
     {
       $name: name,
-      $date_of_birth: dateOfBirth,
+      $dateOfBirth: dateOfBirth,
       $biography: biography,
-      $is_currently_employed: is_currently_employed
+      $isCurrentlyEmployed: isCurrentlyEmployed
     }, function(err) {
       if (err) {
-        next(err);
+        return next(err);
       }
       db.get('SELECT * FROM Artist WHERE id = $id', {$id: this.lastID}, (err, row) => {
         if (err) {
-          next(err);
+          return next(err);
         }
         return res.status(201).send({artist: row});
       })
     });
+});
+
+// PUT /api/artists/:artistId
+artistsRouter.put('/:artistId', (req, res, next) => {
+  const {name, dateOfBirth, biography, isCurrentlyEmployed} = req.body.artist;
+  if (!name || !dateOfBirth || !biography || !isCurrentlyEmployed) {
+    return res.status(400).send();
+  }
+  db.run('UPDATE Artist SET name = $name, date_of_birth = $dateOfBirth, biography = $biography, is_currently_employed = $isCurrentlyEmployed WHERE id = $id', 
+    {
+      $id: req.artist.id,
+      $name: name,
+      $dateOfBirth: dateOfBirth,
+      $biography: biography,
+      $isCurrentlyEmployed: isCurrentlyEmployed
+    }, function(err) {
+      if (err) {
+        return next(err);
+      }
+      db.get('SELECT * FROM Artist WHERE id = $id', {$id: req.artist.id}, (err, row) => {
+        if (err) {
+          return next(err);
+        }
+        return res.status(200).send({artist: row});
+      });
+    });
+  
 });
 
 
