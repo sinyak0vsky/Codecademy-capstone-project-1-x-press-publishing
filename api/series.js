@@ -6,7 +6,6 @@ const seriesRouter = express.Router();
 const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
 // Middleware section
-seriesRouter.use('/:seriesId/issues', issuesRouter);
 seriesRouter.param('seriesId', (req, res, next, seriesId) => {
   db.get('SELECT * FROM Series WHERE id = $id', {$id: seriesId}, (err, row) => {
     if (err) {
@@ -19,6 +18,7 @@ seriesRouter.param('seriesId', (req, res, next, seriesId) => {
     next();
   });
 });
+seriesRouter.use('/:seriesId/issues', issuesRouter);
 
 // GET /api/series
 seriesRouter.get('/', (req, res, next) => {
