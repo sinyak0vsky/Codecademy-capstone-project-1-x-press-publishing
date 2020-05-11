@@ -2,11 +2,11 @@ const express = require('express');
 const artistsRouter = express.Router();
 const sqlite3 = require('sqlite3');
 
-const db = new sqlite3.Database(process.env.TEST_DATABASE || '../database.sqlite');
+const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
 // Middleware section
-artistsRouter.param('artistId', (req, res, next, artistId) => {
-  db.get('SELECT * FROM Artist WHERE id = $artistID', {$artistId: artistId}, (err, row) => {
+artistsRouter.param('artistId', (req, res, next, artistId) => { 
+  db.get('SELECT * FROM Artist WHERE id = $artistId', {$artistId: artistId}, (err, row) => {    
     if (err) {
       next(err);
     }
@@ -27,5 +27,11 @@ artistsRouter.get('/', (req, res, next) => {
     return res.send({ artists: rows});
   });
 });
+
+// Get /api/artists/:artistId
+artistsRouter.get('/:artistId', (req, res) => {
+  res.status(200).send({artist: req.artist});
+});
+
 
 module.exports = artistsRouter;
