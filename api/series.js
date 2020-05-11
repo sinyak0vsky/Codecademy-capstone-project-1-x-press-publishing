@@ -29,5 +29,47 @@ seriesRouter.get('/', (req, res, next) => {
 });
 
 // GET /api/series/:seriesId
+seriesRouter.get('/:seriesId', (req, res, next) => {
+  res.status(200).send({series: req.series});
+});
+
+// POST /api/series
+seriesRouter.post('/', (req, res, next) => {
+  const {name, description} = req.body.series;
+  if (!name || !description) {
+    return res.status(400).send();
+  }
+  db.run('INSERT INTO Series (name, description) VALUES ($name, $description)', {$name: name, $description: description}, function(err) {
+    if (err) {
+      return next(err);
+    }
+    db.get('SELECT * FROM Series WHERE id = $id', {$id: this.lastID}, (err, row) => {
+      if (err) {
+        return next(err);
+      }
+      return res.status(201).send({series: row});
+    });
+  });
+});
+
+// PUT /api/series/:seriesId
+seriesRouter.put('/:seriesId', (req, res, next) => {
+  const {name, description} = req.body.series;
+  if (!name || !description) {
+    return res.status(400).send();
+  }
+  db.run('UPDATE Series SET name = $name, description = $description', {$name: name, $description: description}, function(err) {
+    if (err) {
+      return next(err);
+    }
+    db.get('SELECT * FROM Series WHERE id = $id', {$id: req.series.id}, (err, row) => {
+      if (err) {
+        return next(err);
+      }
+      res.status(200).send({series: row});
+    });
+  });
+});
+
 
 module.exports = seriesRouter;
