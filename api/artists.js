@@ -57,7 +57,7 @@ artistsRouter.post('/', (req, res) => {
           return next(err);
         }
         return res.status(201).send({artist: row});
-      })
+      });
     });
 });
 
@@ -86,6 +86,21 @@ artistsRouter.put('/:artistId', (req, res, next) => {
       });
     });
   
+});
+
+// DELETE /api/artists/:artistId
+artistsRouter.delete('/:artistId', (req, res, next) => {
+  db.run('UPDATE Artist SET is_currently_employed = 0 WHERE id = $id', {$id: req.artist.id}, function(err) {
+    if (err) {
+      return next(err);
+    }
+    db.get('SELECT * FROM Artist WHERE id = $id', {$id: req.artist.id}, (err, row) => {
+      if (err) {
+        return next(err);
+      }
+      return res.status(200).send({artist: row});
+    });
+  });
 });
 
 
