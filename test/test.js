@@ -673,7 +673,7 @@ describe('PUT /api/series/:id', function() {
   });
 });
 
-/*describe('DELETE /api/series/:id', function() {
+describe('DELETE /api/series/:id', function() {
   beforeEach(function(done) {
     seed.seedSeriesDatabase(done);
   });
@@ -715,7 +715,7 @@ describe('PUT /api/series/:id', function() {
         .del('/api/series/2')
         .expect(400);
   });
-});*/
+});
 
 describe('GET /api/series/:seriesId/issues', function() {
   before(function(done) {

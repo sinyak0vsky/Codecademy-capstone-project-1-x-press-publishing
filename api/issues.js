@@ -83,4 +83,15 @@ issuesRouter.put('/:issueId', (req, res, next) => {
 
 });
 
+// DELETE /api/series/:series/issues/:issueId
+issuesRouter.delete('/:issueId', (req, res, next) => {
+  const issueId = req.params.issueId;
+  db.run('DELETE FROM Issue WHERE id = $issueId', {$issueId: issueId}, function(err) {
+    if (err) {
+      return next(err);
+    }
+    return res.status(204).send();
+  });
+});
+
 module.exports = issuesRouter;
